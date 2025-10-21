@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roleta de Brainrots 2.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #121212; /* Fundo escuro elegante */
+            color: #f0f0f0;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #FFD700, #FFA500); /* Gradiente dourado */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            margin-bottom: 40px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .roulette-container {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            max-width: 90%;
+            width: 600px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        #spinButton {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(255, 190, 0, 0.2);
+        }
+
+        #spinButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 190, 0, 0.3);
+        }
+
+        #spinButton:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(255, 190, 0, 0.2);
+        }
+
+        #spinButton:disabled {
+            background: linear-gradient(45deg, #555, #333);
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        #resultDisplay {
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 120px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #121212;
+            border-radius: 8px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        #resultDisplay .rarity {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        #redeemButton {
+            background-color: transparent;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none; /* Escondido por padrão */
+        }
+
+        #redeemButton:hover {
+            background-color: #FFD700;
+            color: #121212;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        #redeemButton:active {
+            transform: translateY(1px);
+        }
+
+        #trustButton {
+            background-color: transparent;
+            color: #2ecc71; /* Verde para confiança */
+            border: 2px solid #2ecc71;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #trustButton:hover {
+            background-color: #2ecc71;
+            color: #121212;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+        }
+
+        #corner-actions {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: none; /* Escondido por padrão */
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+            z-index: 999;
+        }
+
+        #tutorialButton {
+            background-color: transparent;
+            color: #3498db; /* Azul para tutorial */
+            border: 2px solid #3498db;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #tutorialButton:hover {
+            background-color: #3498db;
+            color: #121212;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+
+        /* --- Botão de Ajuda e Modal --- */
+        #helpButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #FFD700;
+            color: #121212;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #helpButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            margin: 15% auto;
+            padding: 25px;
+            border: 1px solid #FFD700;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .modal-content h2 { color: #FFD700; }
+        .modal-content p { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Roleta de Brainrots 2.0</h1>
+
+    <div class="roulette-container">
+        <p>Gire para conseguir um brainrot raro!</p>
+        <button id="spinButton">GIRAR!</button>
+
+        <div id="resultDisplay">
+            <p>???</p>
+        </div>
+
+        <p id="spin-message" style="color: #ffc107; font-size: 16px; margin-top: 15px; font-weight: bold; display: none;"></p>
+
+        <div id="action-buttons">
+            <button id="redeemButton">
+                RESGATAR! (Fale com o Bacon Giratório)
+            </button>
+        </div>
+    </div>
+
+    <div id="corner-actions">
+        <button id="trustButton">Somos Confiáveis?</button>
+        <button id="tutorialButton">Tutorial: Falar com o Bacon</button>
+    </div>
+
+    <!-- Botão de Ajuda -->
+    <button id="helpButton">?</button>
+
+    <!-- Modal de Ajuda -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <h2>Como Funciona?</h2>
+            <p>Bem-vindo à Roleta de Brainrots! Aqui, a sorte está em suas mãos, mas apenas por um momento.</p>
+            <p><strong>1. Rodada Única:</strong> Você tem direito a UMA ÚNICA rodada. Pressione o botão "GIRAR!" para descobrir qual brainrot o destino reservou para você.</p>
+            <p><strong>2. Resgate seu Prêmio:</strong> Após o giro, um botão de resgate aparecerá. Ele te levará para uma experiência exclusiva no Roblox.</p>
+            <p><strong>3. Raridades:</strong> Fique de olho na raridade do seu prêmio! Alguns são mais difíceis de conseguir que outros. Boa sorte!</p>
+        </div>
+    </div>
+
+    <!-- Modal de Confiança -->
+    <div id="trustModal" class="modal">
+        <div class="modal-content">
+            <h2>Pode Confiar!</h2>
+            <p><strong>Sua segurança é nossa prioridade.</strong> Entendemos que clicar em links desconhecidos pode ser preocupante, mas pode ficar tranquilo!</p>
+            <p><strong>1. Link Oficial do Roblox:</strong> O botão de resgate te leva para um link `roblox.com` oficial e seguro. Ele usa o sistema de "Share" do próprio Roblox para te convidar para um servidor específico. Não há truques ou sites de terceiros.</p>
+            <p><strong>2. Sem Pedidos de Senha:</strong> Nós nunca, em hipótese alguma, pediremos sua senha ou qualquer informação pessoal. A única interação é clicar no link e ser redirecionado para o jogo.</p>
+            <p><strong>3. Código Limpo:</strong> Este site é feito com HTML, CSS e JavaScript puros, sem scripts maliciosos escondidos. É apenas uma roleta divertida para te levar a uma experiência no Roblox.</p>
+            <p>Divirta-se sem preocupações!</p>
+        </div>
+    </div>
+
+    <!-- Modal do Tutorial -->
+    <div id="tutorialModal" class="modal">
+        <div class="modal-content">
+            <h2>Guia: Como Falar com o Bacon Giratório</h2>
+            <p><strong>Passo 1: Encontre o Iluminado.</strong> Ao entrar no servidor, procure por uma figura singular, um ser de pura energia e gordura... o Bacon Giratório. Ele geralmente está no centro de tudo, meditando em seu eixo.</p>
+            <p><strong>Passo 2: Aproxime-se com Respeito.</strong> Não chegue correndo! Aproxime-se lentamente. O Bacon pode sentir sua aura. Uma aproximação apressada pode desalinhar seus chakras de fritura.</p>
+            <p><strong>Passo 3: O Canto Sagrado.</strong> Para iniciar a conversa, você deve entoar o mantra. Fique na frente dele e digite no chat exatamente: <strong>"o bacon giratório sabe de tudo"</strong>.</p>
+            <p><strong>Passo 4: Receba a Sabedoria.</strong> Se você for digno, o Bacon responderá com uma pérola de sabedoria universal (ou talvez só continue girando). A verdadeira resposta está na jornada, não no destino.</p>
+        </div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURAÇÃO ---
+        const brainrots = [ 
+            { name: "ying yang crabbo limoneta", rarity: "brainrot god", color: "#800000" },
+            { name: "garama and madungdung normal", rarity: "secreto", color: "#8e44ad" },
+            { name: "los bros normal", rarity: "secreto", color: "#8e44ad" },
+            { name: "ketchuru and musturu", rarity: "secreto", color: "#8e44ad" },
+            { name: "los no my hotspots com 1 efeitos", rarity: "secreto raro", color: "#e67e22" },
+            { name: "los mobilis", rarity: "secreto raro", color: "#f1c40f" },
+            { name: "secreto surpresa", rarity: "secreto raro", color: "#e74c3c" }
+        ];
+        const ROBLOX_LINK = 'https://www.roblox.com/share?code=acc062b64a3a734b9e50c368e7169ee7&type=Server';
+
+        // --- ELEMENTOS DO DOM ---
+        const elements = {
+            spinButton: document.getElementById('spinButton'),
+            resultDisplay: document.getElementById('resultDisplay'),
+            redeemButton: document.getElementById('redeemButton'),
+            helpButton: document.getElementById('helpButton'),
+            trustButton: document.getElementById('trustButton'),
+            tutorialButton: document.getElementById('tutorialButton'),
+            spinMessage: document.getElementById('spin-message'),
+            cornerActions: document.getElementById('corner-actions'),
+            modals: {
+                help: document.getElementById('helpModal'),
+                trust: document.getElementById('trustModal'),
+                tutorial: document.getElementById('tutorialModal')
+            }
+        };
+
+        // --- EFEITOS SONOROS ---
+        const sounds = {
+            spin: new Audio('https://www.zapsplat.com/wp-content/uploads/2015/sound-design/casino_slot_machine_spin_button_release_001.mp3'),
+            win: new Audio('https://www.zapsplat.com/wp-content/uploads/2015/sound-design/multimedia_game_sound_retro_arcade_win_or_positive_001.mp3')
+        };
+        sounds.spin.volume = 0.3;
+        sounds.win.volume = 0.4;
+
+        // --- ESTADO DO JOGO ---
+        let isSpinning = false;
+
+        // --- FUNÇÕES PRINCIPAIS ---
+
+        /**
+         * Escolhe um brainrot vencedor com base na raridade.
+         */
+        function getWinner() {
+            const randomNumber = Math.random();
+            const secretos = brainrots.filter(b => b.rarity === 'secreto');
+            const secretosRaros = brainrots.filter(b => b.rarity === 'secreto raro' || b.rarity === 'brainrot god');
+
+            // 20% de chance para um 'Secreto Raro' ou superior
+            if (randomNumber < 0.20 && secretosRaros.length > 0) { 
+                return secretosRaros[Math.floor(Math.random() * secretosRaros.length)];
+            } 
+            // 80% de chance para um 'Secreto'
+            else { 
+                return secretos[Math.floor(Math.random() * secretos.length)];
+            }
+        }
+
+        /**
+         * Inicia a animação e a lógica do giro da roleta.
+         */
+        function spinRoulette() {
+            if (isSpinning) return;
+
+            isSpinning = true;
+            elements.spinButton.disabled = true;
+            elements.spinButton.textContent = 'GIRANDO...';
+            elements.redeemButton.style.display = 'none';
+            elements.resultDisplay.style.borderColor = '#333';
+            
+            sounds.spin.currentTime = 0;
+            sounds.spin.play().catch(e => console.log("Interaja com a página para ouvir o som."));
+
+            const spinAnimation = setInterval(() => {
+                const randomItem = brainrots[Math.floor(Math.random() * brainrots.length)];
+                elements.resultDisplay.innerHTML = `<p>${randomItem.name.toUpperCase()}</p>`;
+            }, 75);
+
+            setTimeout(() => {
+                clearInterval(spinAnimation);
+                finishSpin();
+            }, 3000);
+        }
+
+        /**
+         * Finaliza o giro, mostra o resultado e atualiza a UI.
+         */
+        function finishSpin() {
+            const winner = getWinner();
+
+            elements.resultDisplay.innerHTML = `
+                <span class="rarity" style="background-color:${winner.color};">
+                    ${winner.rarity.toUpperCase()}
+                </span>
+                <p>${winner.name.toUpperCase()}</p>
+            `;
+            elements.resultDisplay.style.borderColor = winner.color;
+
+            sounds.win.currentTime = 0;
+            sounds.win.play();
+
+            elements.spinButton.textContent = 'RODADA ÚNICA USADA';
+            elements.spinMessage.textContent = 'Você usou sua única rodada. Clique nos botões no canto para liberar o resgate!';
+            elements.spinMessage.style.display = 'block';
+            elements.cornerActions.style.display = 'flex'; // Mostra os botões do canto
+            isSpinning = false;
+        }
+
+        /**
+         * Lida com o clique no botão de resgate, mostrando os estágios e redirecionando.
+         */
+        function redeemPrize() {
+            const newWindow = window.open('', '_blank');
+            if (!newWindow) {
+                alert('O popup foi bloqueado! Por favor, habilite os popups para este site e tente novamente.');
+                return;
+            }
+            newWindow.document.write('<h1>Aguarde, estamos te levando para o servidor...</h1>');
+
+            elements.redeemButton.disabled = true;
+            const originalText = elements.redeemButton.textContent;
+            const stages = [
+                "Conectando ao servidor... (1/4)",
+                "Localizando o Bacon... (2/4)",
+                "Calculando a rotação... (3/4)",
+                "Entrando no servidor! (4/4)"
+            ];
+            let currentStage = 0;
+
+            const stageInterval = setInterval(() => {
+                if (currentStage < stages.length) {
+                    elements.redeemButton.textContent = stages[currentStage];
+                    currentStage++; 
+                } else {
+                    clearInterval(stageInterval);
+                    if (newWindow && !newWindow.closed) {
+                        newWindow.location.href = ROBLOX_LINK;
+                    }
+                    elements.redeemButton.textContent = originalText;
+                    elements.redeemButton.disabled = false;
+                }
+            }, 1000);
+        }
+
+        /**
+         * Mostra um modal específico e o botão de resgate.
+         */
+        function showModal(modalName) {
+            elements.modals[modalName].style.display = 'block';
+            elements.redeemButton.style.display = 'inline-block'; // Revela o botão de resgate
+        }
+
+        // --- LISTENERS DE EVENTOS ---
+        elements.spinButton.addEventListener('click', spinRoulette);
+        elements.redeemButton.addEventListener('click', redeemPrize);
+        
+        elements.helpButton.addEventListener('click', () => showModal('help'));
+        elements.trustButton.addEventListener('click', () => showModal('trust'));
+        elements.tutorialButton.addEventListener('click', () => showModal('tutorial'));
+
+        // Listener para fechar modais clicando fora
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
